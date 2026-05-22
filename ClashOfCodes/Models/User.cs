@@ -16,4 +16,13 @@ public class User
 
     //spells as json string
     public string SelectedSpells { get; set; } = "[]";
+    // --- RELATIONSHIP: User & Match ---
+    // Can one User play in many Matches? Yes.
+    // Can one Match have many Users? Yes.
+    // Result: Many-to-Many. Requires the "MatchPlayer" join table!
+    public List<MatchPlayer> MatchPlayers { get; set; } = new List<MatchPlayer>();
+    
+    // --- RELATIONSHIP: User & Room ---
+    // 1 User -> Many Rooms. User is the "One" side, so it gets a List.
+    public List<Room> CreatedRooms { get; set; } = new List<Room>();
 }

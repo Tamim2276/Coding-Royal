@@ -10,7 +10,10 @@ public class AppDbContext : DbContext
     }
     public DbSet<User> Users { get; set; }
     public DbSet<Match> Matches { get; set; }
-
     public DbSet<Problem> Problems { get; set; }
+    
+    public DbSet<McqQuestion> McqQuestions { get; set; }
+    public DbSet<MatchPlayer> MatchPlayers { get; set; }
+    public DbSet<Room> Rooms { get; set; }
 
 }

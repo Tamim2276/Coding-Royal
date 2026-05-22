@@ -9,4 +9,11 @@ public class Problem
     public string Topic { get; set; } = string.Empty;
     public string TestCaseJson { get; set; } = "[]";
     public string HiddenTestCaseJson { get; set; } = "[]";
+
+    // --- RELATIONSHIP: Problem & McqQuestion ---
+    // Can one Problem have many MCQ Questions? Yes.
+    // Can one MCQ Question belong to many Problems? No.
+    // Result: One-to-Many (1 Problem -> Many MCQs).
+    // Problem is the "One" side, so it gets a List of the "Many".
+    public List<McqQuestion> McqQuestions { get; set; } = new List<McqQuestion>();
 }
