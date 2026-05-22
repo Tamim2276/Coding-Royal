@@ -1,10 +1,14 @@
 using ClashOfCodes.Components;
+using ClashOfCodes.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.AddClashOfCodesDbContext();
 
 var app = builder.Build();
 
@@ -23,5 +27,7 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MigrateDatabase();
 
 app.Run();
