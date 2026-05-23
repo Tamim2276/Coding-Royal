@@ -1,0 +1,171 @@
+@page "/admin"
+@using ClashOfCodes.Data
+@using ClashOfCodes.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject AppDbContext DbContext
+
+<h1>Admin Page</h1>
+<p>Welcome to the admin page. Here you can manage the application.</p>
+<h3>Registered Users</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Registered Users</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>  
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var user in Users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Username</td>
+                <td>@user.Email</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Available Problems</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Available Problems</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>  
+            <th>Difficulty</th>
+            <th>Topic</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var problem in Problems)
+        {
+            <tr>
+                <td>@problem.Id</td>
+                <td>@problem.Title</td>
+                <td>@problem.Description</td>
+                <td>@problem.Difficulty</td>
+                <td>@problem.Topic</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Active Rooms</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Available Rooms</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Status </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var room in Rooms)
+        {
+            <tr>
+                <td>@room.Id</td>
+                <td>@room.Code</td>
+                <td>@room.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>MCQ Questions</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Available MCQ Questions</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Question</th>
+            <th>Correct Option (Index)</th>
+            <th>Problem ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var question in McqQuestions)
+        {
+            <tr>
+                <td>@question.Id</td>
+                <td>@question.QuestionText</td>
+               <td>@question.CorrectOptionIndex</td>
+                <td>@question.ProblemId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Match History</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Available Matches</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Room Code</th>
+            <th>Is Ranked</th>
+            <th>Winner Id</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var match in Matches)
+        {
+            <tr>
+                <td>@match.Id</td>
+                <td>@match.RoomCode</td>
+                <td>@match.IsRanked</td>
+                <td>@match.WinnerId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Match Players</h3>
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+    @* <caption>List of Match Players</caption> *@
+    <thead  class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Match ID</th>
+            <th>User ID</th>
+            <th>Crowns Earned</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var player in MatchPlayers)
+        {
+            <tr>
+                <td>@player.Id</td>
+                <td>@player.MatchId</td>
+                <td>@player.UserId</td>
+                <td>@player.CrownsEarned</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code
+{
+    private List<User> Users = new();
+    private List<Problem> Problems = new();
+    private List<Room> Rooms = new();
+    private List<McqQuestion> McqQuestions = new();
+    private List<Match> Matches = new();
+    private List<MatchPlayer> MatchPlayers = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Load users, problems, and rooms from the database
+        Users = await DbContext.Users.ToListAsync();
+        Problems = await DbContext.Problems.ToListAsync();
+        Rooms = await DbContext.Rooms.ToListAsync();
+        McqQuestions = await DbContext.McqQuestions.ToListAsync();
+        Matches = await DbContext.Matches.ToListAsync();
+        MatchPlayers = await DbContext.MatchPlayers.ToListAsync();
+    }
+}
