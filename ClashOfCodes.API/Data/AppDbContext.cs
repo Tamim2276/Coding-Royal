@@ -1,14 +1,17 @@
 using ClashOfCodes.Shared.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClashOfCodes.API.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    public DbSet<User> Users { get; set; }
+    // We don't need to define a DbSet for User because IdentityDbContext already includes it as "Users".
+    // public DbSet<User> Users { get; set; }
     public DbSet<Match> Matches { get; set; }
     public DbSet<Problem> Problems { get; set; }
 

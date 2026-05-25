@@ -10,3 +10,4 @@ C:\Users\tam1m\Desktop\coding game\ClashOfCodes.Shared\obj\Debug\net10.0\ClashOf
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.Shared\obj\Debug\net10.0\refint\ClashOfCodes.Shared.dll
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.Shared\obj\Debug\net10.0\ClashOfCodes.Shared.pdb
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.Shared\obj\Debug\net10.0\ref\ClashOfCodes.Shared.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.Shared\obj\Debug\net10.0\ClashOfCodes.Shared.csproj.AssemblyReference.cache

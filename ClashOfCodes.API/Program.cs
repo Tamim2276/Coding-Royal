@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ClashOfCodes.API.Data;
+using ClashOfCodes.Shared.Models;
 using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,16 @@ builder.Services.AddCors(options =>
 // Remove Http.Json options config, as AddJsonOptions above configures it for Controllers
 
 builder.AddClashOfCodesDbContext();
+
+builder.Services.AddIdentityCore<User>(option =>
+{
+
+    option.Password.RequireDigit = false;
+    option.Password.RequiredLength = 6;
+    option.Password.RequireNonAlphanumeric = false;
+    option.Password.RequireUppercase = false;
+    option.Password.RequireLowercase = false;
+});
 
 var app = builder.Build();
 
