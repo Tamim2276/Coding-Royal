@@ -80,3 +80,31 @@ ClockSkew = TimeSpan.Zero
 3. The JWT contains their User ID, their roles, and an expiration date, all sealed with a **Secret Signature**.
 4. The user sends the JWT in the `Authorization` HTTP header every time they click a button in your app.
 5. The `TokenValidationParameters` code checks the signature and expiration date before letting the code run.
+
+---
+
+## What are "Claims" inside a JWT?
+
+A **Claim** is simply a piece of information printed on that VIP Pass.
+
+When a user logs in successfully, we stuff some useful information _inside_ the token before we seal it and hand it back to the user. This way, when the user sends the token back to the API later, the API can quickly read the pass instead of searching the database again.
+
+### Common Claims Examined:
+
+```csharp
+var authClaims = new List<Claim>
+{
+    // 1. The Username
+    new Claim(ClaimTypes.Name, user.UserName!),
+
+    // 2. The User ID
+    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+
+    // 3. A Unique Token ID
+    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+};
+```
+
+- **`ClaimTypes.Name`**: Prints the user's name on the badge. Useful if the client app just wants to display "Welcome back, {Username}!".
+- **`ClaimTypes.NameIdentifier`**: Prints the user's Database ID (like `1` or `42`) on the badge. This is the **most important claim**. Later, when a player performs an action (like "Join Match"), your API looks at this claim to know exactly which database row is making the request.
+- **`JwtRegisteredClaimNames.Jti`**: Stands for **JWT ID**. Generates a random serial number (GUID) for the badge. This ensures every single VIP Pass ever created has a 100% unique serial number, which is helpful for security tracking.
