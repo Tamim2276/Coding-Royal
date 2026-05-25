@@ -1,6 +1,4 @@
 using ClashOfCodes.Components;
-using ClashOfCodes.Data;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.AddClashOfCodesDbContext();
-
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Add services to the container.
+builder.Services.AddScoped(sp => new HttpClient());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,7 +26,5 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-app.MigrateDatabase();
 
 app.Run();

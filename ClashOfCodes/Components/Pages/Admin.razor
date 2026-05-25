@@ -1,12 +1,17 @@
 @page "/admin"
-@using ClashOfCodes.Data
-@using ClashOfCodes.Models
-@using Microsoft.EntityFrameworkCore
-
-@inject AppDbContext DbContext
+@using ClashOfCodes.Shared.Models
+@inject HttpClient Http
 
 <h1>Admin Page</h1>
 <p>Welcome to the admin page. Here you can manage the application.</p>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+
 <h3>Registered Users</h3>
 <table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
     @* <caption>List of Registered Users</caption> *@
@@ -151,6 +156,7 @@
 
 @code
 {
+    // Admin page to display all users, problems, rooms, mcq questions, matches, and match players in the database
     private List<User> Users = new();
     private List<Problem> Problems = new();
     private List<Room> Rooms = new();
@@ -158,14 +164,41 @@
     private List<Match> Matches = new();
     private List<MatchPlayer> MatchPlayers = new();
     
+    private string errorMessage = "";
+
+    private class AdminDataResponse
+    {
+        public List<User> Users { get; set; } = new();
+        public List<Problem> Problems { get; set; } = new();
+        public List<Room> Rooms { get; set; } = new();
+        public List<McqQuestion> McqQuestions { get; set; } = new();
+        public List<Match> Matches { get; set; } = new();
+        public List<MatchPlayer> MatchPlayers { get; set; } = new();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        // Load users, problems, and rooms from the database
-        Users = await DbContext.Users.ToListAsync();
-        Problems = await DbContext.Problems.ToListAsync();
-        Rooms = await DbContext.Rooms.ToListAsync();
-        McqQuestions = await DbContext.McqQuestions.ToListAsync();
-        Matches = await DbContext.Matches.ToListAsync();
-        MatchPlayers = await DbContext.MatchPlayers.ToListAsync();
+        try 
+        {
+            // Load all the admin data from the API endpoint
+            var response = await Http.GetFromJsonAsync<AdminDataResponse>("http://localhost:5045/api/admin/all-data");
+            if (response != null)
+            {
+                Users = response.Users;
+                Problems = response.Problems;
+                Rooms = response.Rooms;
+                McqQuestions = response.McqQuestions;
+                Matches = response.Matches;
+                MatchPlayers = response.MatchPlayers;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not connect to the API. Is it running? Details: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while fetching data: {ex.Message}";
+        }
     }
 }

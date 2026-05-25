@@ -1,140 +1,121 @@
-# Clash of Codes - Game Design Document & 4-Week Build Guide
-
-## Project Overview
-
-**Clash of Codes** is a multiplayer competitive programming game that adapts the high-stakes, real-time resource management of the _Clash Royale_ format into an algorithmic battleground. Players match globally or challenge friends, balancing fast-paced code composition, MCQs, and disruptive abilities called **Spells**.
-
-### Tech Stack
-
-- **Backend and UI:** ASP.NET Core 8 & Blazor Server
-- **Database:** SQL Server Express + Entity Framework (EF) Core
-- **Real-Time Multiplayer:** ASP.NET Core SignalR
-- **Code Editor:** Monaco Editor (JS Interop)
-- **Code Execution:** Judge0 CE API
-- **Deployment Target:** Azure App Service
-
----
+# Clash of Codes - Updated Build Guide v3.0
 
 ## 1. The Core Game Loop & Resource Economy
 
 ### Battle Elixir (BE)
 
-Used exclusively during an active match to deploy tactical spells.
-
-- **Capacity limits:** Start at 0 BE, hard-capped at **10 BE**.
-- **Passive Generation:** **1 BE / 10s**. In the final 60 seconds (Double Elixir), generates **2 BE / 10s**.
-- **Active Generation:**
-  - Successful Compilation: **+1 BE**
-  - Flawless First-Submission Run: **+3 BE**
-  - Correct MCQ Answer: **+1 BE**
+- **Capacity**: Players start at 0 BE; hard cap is 10 BE.
+- **Passive generation**: 1 BE every 10 seconds. In the final 60 seconds (Double Elixir mode): 2 BE every 10 seconds.
+- **Active generation**:
+  - Successful compilation: +1 BE
+  - Flawless first-submission run: +3 BE
+  - Correct MCQ answer: +1 BE
 
 ### Rank Points (RP) & The Greed vs. Power Economy
 
-Rank Points dictate a user's global ladder standing. The core mechanic requires players to balance spending Elixir against saving it for bonus RP:
-
-- **Final RP Awarded = Match Base Victory RP + (Unspent BE Remaining × δ)**
-- **δ = 5** is the recommended scaling multiplier.
-- **Loss Streak Protection:** After 3 consecutive losses, the RP penalty for the next match is halved.
+- **Final RP Awarded** = Match Base Victory RP + (Unspent BE at match end × 5)
+- **Loss-streak protection**: After 3 consecutive losses, the RP penalty for the next match is halved.
 
 ---
 
 ## 2. Match Structure & Victory Conditions
 
-A standard map has three algorithmic tracks (Left: Easy, Right: Medium, Center: Hard/King's Tower).
-
-- **Left / Right Tracks:** Yield **1 Crown** each on completion.
-- **Center Track:** Yields **3 Crowns** forming an absolute victory.
-
-**Node Workflow:**
-
-- **Stage I:** Code Composition (pass public test cases).
-- **Stage II:** MCQ Stream (3–5 questions).
+- **Left Track (Easy)**: Yields 1 Crown on completion.
+- **Right Track (Medium)**: Yields 1 Crown on completion.
+- **Centre Track (Hard)**: King’s Tower — completing this triggers an instant 3-Crown absolute victory, overriding all other conditions.
+- **Node Workflow**: Stage I (Code Composition - pass public test cases) -> Stage II (MCQ Stream - 3 to 5 questions).
 
 ---
 
 ## 3. The Spellbook Mechanics
 
-For the v1 launch, you will launch with exactly **6 Spells** (3 offensive, 3 defensive). A player brings exactly 4 spells into a match.
+Players assemble a loadout of exactly 4 Spells (2 Offensive + 2 Defensive).
+Recommended v1 launch with 6 spells only (3 offensive + 3 defensive).
 
-### Recommended Spells (v1):
+**Offensive Spells (Examples)**:
 
-#### Offensive:
+- **Fog of War (2 BE)**: Hides compiler line numbers for 45s.
+- **Time Warp (3 BE)**: Opponent’s timer spins at double speed visually for 30s.
+- **MCQ Barrage (5 BE)**: Injects 2 high-difficulty MCQ items into opponent’s queue.
 
-1. **Fog of War (2 BE):** Hides compiler line numbers for 45s ("Compilation Failed" only).
-2. **Time Warp (3 BE):** Distorts opponent's match timer to spin at double speed for 30s.
-3. **MCQ Barrage (5 BE):** Force-injects 2 high-difficulty MCQs into the opponent's validation queue.
+**Defensive Spells (Examples)**:
 
-#### Defensive:
+- **Lint Shield (2 BE)**: Immune to flickering, theme changes, typo curses for 60s.
+- **Ctrl+Z Rollback (4 BE)**: 3s reactive window restoring code buffer after Code Swap.
+- **Garbage Collector (5 BE)**: Purges all active debuffs and visual distortions.
 
-4. **Lint Shield (2 BE):** Immune to flickering, theme changes, typo curses for 60s.
-5. **Ctrl + Z Rollback (4 BE):** Activates a 3s reactive window to restore the previous code buffer when swapped or wiped.
-6. **Garbage Collector (5 BE):** Purges all active debuffs, visual distortions, and status impairments from UI.
-
-### Design Improvements:
-
-- **Spell Cooldown System:** 30–60 second cooldown per slot after a spell is cast.
-- **Active Debuff Cap:** A player may have at most **2 active offensive debuffs** on the opponent. A third spell replaces the oldest debuff.
-- **Spell Notifications (Toasts):** When a spell hits, display a Toast notification (e.g., _"Opponent cast Fog of War - compiler messages hidden for 45s"_).
+_(Added 30-60 second per-slot cool-downs & a cap of max 2 active offensive debuffs)._
 
 ---
 
-## 4. Matchmaking Models & Environments
+## 4. Matchmaking & Arenas
 
-- **Ranked Ladder:** Elo-based pairing within ±200 RP.
-- **Custom Lobbies:** Room Codes (6 char key) or Direct Invites. Host controls difficulty, topics, and Elixir scaling.
-- **Surrender & Disconnect:** Forfeit and opponent wins if disconnected for ≥ 60s.
-- **Arena Themes:** (Spaghetti Junction: 0-499, Parse Pit: 500-999, ... Kernel Palace: 5000+). Each new arena unlocks one extra Spellbook slot.
+- **Ranked Ladder**: Pairs players within ±200 RP.
+- **Custom Lobbies**: 6-character alphanumeric key. Topic filter, difficulty cap, Elixir mode.
+- **Arenas**: 10 Tiered Arenas ranging from _Spaghetti Junction_ (0-499 RP) up to _Kernel Palace_ (5000+ RP). Each new arena unlocks an additional spell.
 
 ---
 
-## 5. 4-Week Day-by-Day Build Guide
+## 5. Architecture Reference (Two-Project Setup)
 
-### Week 1 — Foundations (Auth, Database, Basic UI)
+**ClashOfCodes.API (Backend):**
 
-- Goal: Set up Blazor Server, EF Core Db, Identity, and basic profile page.
+- ASP.NET Core 8 Web API
+- EF Core + SQLite
+- ASP.NET Identity & JWT token generation
+- SignalR Hub (Real-time Game State)
+- Judge0 Service integrations
 
-* **Day 1:** Project scaffold. Run `dotnet new blazorserver -o ClashOfCodes`. Push to GitHub.
-* **Day 2:** Layout and Navigation. Edit `MainLayout.razor`, add dummy pages.
-* **Day 3:** Database Design & EF Core Setup. Define User, Problem, Match models. Run `Init` migration.
-* **Day 4:** Database Seeding. Seed problems/MCQs. Build `Admin` Blazor page displaying problems.
-* **Day 5:** ASP.NET Identity. Add `Microsoft.AspNetCore.Identity.EntityFrameworkCore`. Add custom fields like `RankPoints`, `BattleElixir`.
-* **Day 6:** Register/Login Pages using `EditForm` and `AuthenticationStateProvider`.
-* **Day 7:** Profile screen & Spellbook selector. Allow users to select 4 out of 6 base spells.
+**ClashOfCodes (Frontend):**
 
-### Week 2 — Core Game Loop (Editor, Judge0, Economy)
+- Blazor Server
+- HttpClient for all API calls
+- Custom AuthStateProvider taking JWT from localStorage
+- Monaco Editor (JS Interop)
+- SignalR Client for live match states
 
-- Goal: Get Monaco editor running, compile code, handle MCQs, and do a solo practice loop.
+_Both deployed to separate Azure App Services._
 
-* **Day 8:** Code Editor. Load Monaco Editor via CDN, use `IJSRuntime` (JS Interop).
-* **Day 9:** Code Submission via **Judge0 API**. Subscribe, construct `JudgeService` using `HttpClient`.
-* **Day 10:** MCQ Stage. Transition to `McqPanel.razor` after successful compilation. Handle event callbacks.
-* **Day 11:** BE Economy & Crowns. System timer for BE. Tracking test cases passed and Crowns logic.
-* **Day 12:** Solo Practice Mode. Wire up `GamePage.razor` entirely to play local.
-* **Day 13:** Match Result Screen. Calculate final RP (Base RP + Unspent BE \* 5), save to `MatchHistory`.
-* **Day 14:** Buffer/Polish. Review progress and read SignalR documentation.
+---
 
-### Week 3 — Spells & Real-time Multiplayer (SignalR)
+## 6. Revised 4-Week Build Plan
 
-- Goal: The hardest week. Implement multiplayer state sync and actual spell casting.
+### Week 1 — Foundations (Days 5-7)
 
-* **Day 15:** SignalR Basics. Add `Microsoft.AspNetCore.SignalR`, create `GameHub`. Create simple ping-pong message test.
-* **Day 16:** Match State Sync. Broadcast test case pass % and crowns. Store state in server-side `ConcurrentDictionary`.
-* **Day 17:** Double Elixir & Match End. Broadcast double elixir at T-60s. Handle match end criteria and broadcast winner.
-* **Day 18:** Offensive Spells (UI). Implement handling for _Fog of War_ and _Time Warp_ over SignalR.
-* **Day 19:** Offensive Spells (Code). Implement _MCQ Barrage_ injection.
-* **Day 20:** Defensive Spells & Hotbar UI. Implement _Lint Shield_, _Garbage Collector_, _Ctrl + Z_, and 30s-60s cooldown ring animation on UI.
-* **Day 21:** Matchmaking Queue (`BackgroundService`). Pair players within ±200 RP every 5 seconds.
+_(Days 1–4: Models, DbContext, Migrations, SQLite base already completed and migrated to two projects)_
 
-### Week 4 — Polish & Deployment
+- **Day 5 (API)**: Add Identity, JWT generation, and AuthController endpoints (`/register`, `/login`).
+- **Day 6 (Blazor)**: Login/Register UI. Store JWT in `localStorage`. Build `AuthStateProvider`.
+- **Day 7 (Both)**: Attach JWT to HTTP requests implicitly via `JwtAuthHandler`. Protect routes and wire up `Profile.razor`.
 
-- Goal: Arenas, custom lobbies, styling, end-to-end testing, and cloud deployment.
+### Week 2 — Core Game Loop (Days 8-14)
 
-* **Day 22:** Arena Promotion system & Match filtering by arena.
-* **Day 23:** Global Leaderboard page. Paginated top 50 users by RP list.
-* **Day 24:** Custom Lobbies (Room Generation). 6-character room codes, host configurations.
-* **Day 25:** Lobby waiting room UI. Ready buttons, SignalR live chat, Share Room link.
-* **Day 26:** Global Styling. Dark mode theme, SVG badges, crown pulse animation.
-* **Day 27:** Layout Refinement. CSS Grid for IDE panel and progress panel. Ensure 1280px & 1920px compatibility.
-* **Day 28:** E2E Testing. Test two accounts (Chrome/Firefox), cast spells, check scoring. Log bugs.
-* **Day 29:** Fix Bugs, Error Handling. Handle Judge0 timeouts, 404/500 error pages.
-* **Day 30:** Deployment. Free Azure App Service deployment, configure environment variables for Connection String and Judge0 Key. Celeberate!
+- **Day 8 (API)**: JudgeService wrapping Judge0 API. POST `/api/submit` endpoint.
+- **Day 9 (Blazor)**: Monaco Editor embedding. Submit flow passing code and displaying runtime results.
+- **Day 10 (API)**: MCQ endpoints (`/api/mcq/{problemId}`) with server-side answers evaluation & BE delta calculations.
+- **Day 11 (Blazor)**: MCQ panel, BE bar, and Crown tracker visual components.
+- **Day 12 (Blazor)**: Link components up in `Game.razor` via CSS grid layout. Test the solo loop.
+- **Day 13 (Both)**: Calculate Match results (Final RP math) server-side and wire up the results screen in Blazor.
+- **Day 14 (Both)**: Buffer for bug fixes. Read SignalR documentation prior to Week 3.
+
+### Week 3 — Multiplayer & Spells (Days 15-21)
+
+- **Day 15 (API)**: SignalR `GameHub` and in-memory Match State dictionary.
+- **Day 16 (Blazor)**: Connect `HubConnectionBuilder` using JWT. Set up opponent progress bars via WebSockets.
+- **Day 17 (Both)**: Double Elixir at T-60s broadcast. Setup full match-end conditions and 60-second disconnect handler.
+- **Day 18 (API)**: Create authoritative `CastSpell` hub capability and deduct BE properly.
+- **Day 19 (Blazor)**: Hook up Offensive spell UI responses (Fog of War, Syntax Poison, MCQ Barrage bindings).
+- **Day 20 (Both)**: Hook up Defensive spell UI and the dynamic Spell Hotbar component.
+- **Day 21 (Both)**: Spin up `MatchmakingQueue` BackgroundService to pair queued players & assign problems.
+
+### Week 4 — Polish & Deployment (Days 22-30)
+
+- **Day 22 (Both)**: Hook up Arena threshold promotions & badge animations matching RP numbers.
+- **Day 23 (Both)**: Add global paginated Leaderboard via `/api/leaderboard`.
+- **Day 24 (API)**: Private Lobby `/api/rooms` generation and routing.
+- **Day 25 (Blazor)**: Lobby waiting room UI, live chatting, 'Ready' toggling.
+- **Day 26 (Blazor)**: Global visual pass (CSS custom vars, Spell animations, SVG icons).
+- **Day 27 (Blazor)**: Keyboard bindings (Ctrl+Enter to submit code), loading spinners during API calls.
+- **Day 28 (Both)**: End-to-end parallel testing across dual browsers. Log issues.
+- **Day 29 (Both)**: Clean up bugs and harden error boundaries & HTTP timeouts (Judge0 handling).
+- **Day 30 (Both)**: Execute deployment steps to dual Azure App Services. Setup secure environment variables.

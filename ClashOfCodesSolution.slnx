@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="ClashOfCodes.API/ClashOfCodes.API.csproj" />
+  <Project Path="ClashOfCodes.Shared/ClashOfCodes.Shared.csproj" />
   <Project Path="ClashOfCodes/ClashOfCodes.csproj" />
 </Solution>
