@@ -149,3 +149,12 @@ C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\obj\Debug\net10.0\refint\Cla
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\obj\Debug\net10.0\ClashOfCodes.API.pdb
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\obj\Debug\net10.0\ClashOfCodes.API.genruntimeconfig.cache
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\obj\Debug\net10.0\ref\ClashOfCodes.API.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes.API\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll

@@ -3,6 +3,8 @@ using ClashOfCodes.API.Data;
 using ClashOfCodes.Shared.Models;
 using Microsoft.AspNetCore.Http.Json;
 
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -33,7 +35,8 @@ builder.Services.AddCors(options =>
 
 builder.AddClashOfCodesDbContext();
 
-builder.Services.AddIdentityCore<User>(option =>
+// Configure Identity with custom password options and EF Core stores
+builder.Services.AddIdentity<User, Microsoft.AspNetCore.Identity.IdentityRole<int>>(option =>
 {
 
     option.Password.RequireDigit = false;
@@ -41,7 +44,9 @@ builder.Services.AddIdentityCore<User>(option =>
     option.Password.RequireNonAlphanumeric = false;
     option.Password.RequireUppercase = false;
     option.Password.RequireLowercase = false;
-});
+})
+.AddEntityFrameworkStores<AppDbContext>() // Use our AppDbContext for Identity stores
+.AddDefaultTokenProviders();// Add default token providers for password reset, email confirmation, etc.
 
 var app = builder.Build();
 

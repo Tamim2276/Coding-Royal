@@ -31,8 +31,8 @@ public static class DataExtension
                 if (!appDb.Users.Any())
                 {
                     appDb.Users.AddRange(
-                        new User { Username = "Alice", Email = "alice@example.com" },
-                        new User { Username = "Bob", Email = "bob@example.com" }
+                        new User { UserName = "Alice", Email = "alice@example.com" },
+                        new User { UserName = "Bob", Email = "bob@example.com" }
                     );
                     appDb.SaveChanges();
                 }
