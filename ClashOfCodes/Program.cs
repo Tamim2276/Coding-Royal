@@ -1,5 +1,7 @@
 using ClashOfCodes.Components;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using ClashOfCodes.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +16,12 @@ builder.Services.AddScoped(sp => new HttpClient());
 
 // Add services to the container.
 builder.Services.AddScoped<ClashOfCodes.Services.AuthService>();
+
+// Add services to the container.
+builder.Services.AddAuthorizationCore();
+
+// Register the CustomAuthStateProvider as the implementation for AuthenticationStateProvider
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 var app = builder.Build();
 

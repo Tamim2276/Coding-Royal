@@ -11,11 +11,21 @@
     <link rel="stylesheet" href="@Assets["ClashOfCodes.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+
+    @* // this will render the HeadOutlet component, which is used to render the head content of the page, such as the
+    title and meta tags. We will use this in the future to set the title of the page dynamically based on the current
+    route. For now, we will just render it with prerendering disabled, since we don't have any dynamic head content yet.
+    We will enable prerendering later when we have dynamic head content to render. *@
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 </head>
 
 <body>
-    <Routes />
+    @* // this will render the NavMenu component, which is the navigation menu of the application. We will use this in
+    the
+    future to show different nav items based on the user's authentication status and roles. For now, we will just render
+    it with prerendering disabled, since we don't have any dynamic nav items yet. We will enable prerendering later when
+    we have dynamic nav items to render. *@
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>

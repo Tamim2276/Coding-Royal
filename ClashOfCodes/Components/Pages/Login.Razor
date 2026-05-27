@@ -42,13 +42,13 @@
         // send data to AuthService to login the user
         var result = await AuthService.LoginAsync(loginModel);
 
-        if (result)
+        if (result == "Login Successful")
         {
             NavigationManager.NavigateTo("/");
         }
         else
         {
-            ErrorMessage = "Invalid username or password";
+            ErrorMessage = result;
         }
     }
 }

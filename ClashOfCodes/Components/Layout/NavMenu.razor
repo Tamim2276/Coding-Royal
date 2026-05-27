@@ -1,4 +1,10 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@using ClashOfCodes.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">ClashOfCodes</a>
     </div>
@@ -14,37 +20,64 @@
             </NavLink>
         </div>
 
+        <AuthorizeView>
+            <Authorized>
+                @* // only show these nav items if the user is authenticated *@
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="game">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> The Arena
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> My Profile
+                    </NavLink>
+                </div>
+
+                
+                <div class="nav-item px-3" style="position: absolute; bottom: 0; width: 100%; color: #f3f3fc;">
+                    @* // this will be the logout button, which will call the Logout method in AuthService to log the
+                    user out *@
+                    @* // this button will call the Logout method in AuthService to log the user out *@
+                    <button class="nav-link btn btn-link w-100 text-start" style="color: #d7d7d7; cursor: pointer;"
+                            @onclick="Logout">
+                        <span class="bi bi-arrow-right-square-fill" aria-hidden="true" style="color: #f3f1f1;"></span>
+                        <strong>Logout</strong>
+                    </button>
+                </div>
+            </Authorized>
+
+            <NotAuthorized>
+                @* // if the user is not authenticated, show the Register and Login nav items*@
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
         @* nav items for admin *@
+        @* Admin item - will protect this with roles later! *@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="admin">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Admin Panel
             </NavLink>
         </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="game">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> The Arena
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> My Profile
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Register
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-
     </nav>
 </div>
 
+@code {
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+}
