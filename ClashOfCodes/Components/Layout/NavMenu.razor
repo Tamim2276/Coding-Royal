@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@rendermode InteractiveServer
+
 @using ClashOfCodes.Services
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
@@ -77,7 +77,7 @@
 @code {
     private async Task Logout()
     {
-        await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login");
+        await AuthService.LogoutAsync(); // call the Logout method in AuthService to log the user out
+        NavigationManager.NavigateTo("/login");// navigate to the login page after logging out
     }
 }

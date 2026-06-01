@@ -1,4 +1,12 @@
 {
   "liveServer.settings.port": 5502,
-  "cSpell.words": ["Blazor", "describedby", "onclick", "rendermode"]
+  "cSpell.words": [
+    "Antiforgery",
+    "Blazor",
+    "Blazored",
+    "describedby",
+    "Hsts",
+    "onclick",
+    "rendermode"
+  ]
 }

@@ -1,6 +1,8 @@
 @page "/admin"
 @using ClashOfCodes.Shared.Models
-@inject HttpClient Http
+@inject ClashOfCodes.Services.AuthService AuthService
+@* // we will use this to create an HttpClient instance to call the API endpoint to get all the data for the admin page
+*@
 
 <h1>Admin Page</h1>
 <p>Welcome to the admin page. Here you can manage the application.</p>
@@ -13,17 +15,17 @@
 }
 
 <h3>Registered Users</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Registered Users</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Username</th>
-            <th>Email</th>  
+            <th>Email</th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var user in Users)
+        @foreach (var user in Users)
         {
             <tr>
                 <td>@user.Id</td>
@@ -35,19 +37,19 @@
 </table>
 
 <h3>Available Problems</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Available Problems</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Title</th>
-            <th>Description</th>  
+            <th>Description</th>
             <th>Difficulty</th>
             <th>Topic</th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var problem in Problems)
+        @foreach (var problem in Problems)
         {
             <tr>
                 <td>@problem.Id</td>
@@ -61,9 +63,9 @@
 </table>
 
 <h3>Active Rooms</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Available Rooms</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Code</th>
@@ -71,7 +73,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var room in Rooms)
+        @foreach (var room in Rooms)
         {
             <tr>
                 <td>@room.Id</td>
@@ -83,9 +85,9 @@
 </table>
 
 <h3>MCQ Questions</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Available MCQ Questions</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Question</th>
@@ -94,12 +96,12 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var question in McqQuestions)
+        @foreach (var question in McqQuestions)
         {
             <tr>
                 <td>@question.Id</td>
                 <td>@question.QuestionText</td>
-               <td>@question.CorrectOptionIndex</td>
+                <td>@question.CorrectOptionIndex</td>
                 <td>@question.ProblemId</td>
             </tr>
         }
@@ -107,9 +109,9 @@
 </table>
 
 <h3>Match History</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Available Matches</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Room Code</th>
@@ -118,7 +120,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var match in Matches)
+        @foreach (var match in Matches)
         {
             <tr>
                 <td>@match.Id</td>
@@ -131,9 +133,9 @@
 </table>
 
 <h3>Match Players</h3>
-<table class="table caption-top table-success table-striped-columns table-hover table-bordered" >
+<table class="table caption-top table-success table-striped-columns table-hover table-bordered">
     @* <caption>List of Match Players</caption> *@
-    <thead  class="table-dark">
+    <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>Match ID</th>
@@ -142,7 +144,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach(var player in MatchPlayers)
+        @foreach (var player in MatchPlayers)
         {
             <tr>
                 <td>@player.Id</td>
@@ -154,17 +156,16 @@
     </tbody>
 </table>
 
-@code
-{
-    // Admin page to display all users, problems, rooms, mcq questions, matches, and match players in the database
+
+@code {
     private List<User> Users = new();
     private List<Problem> Problems = new();
     private List<Room> Rooms = new();
     private List<McqQuestion> McqQuestions = new();
     private List<Match> Matches = new();
     private List<MatchPlayer> MatchPlayers = new();
-    
     private string errorMessage = "";
+    private bool _loaded = false;
 
     private class AdminDataResponse
     {
@@ -176,12 +177,17 @@
         public List<MatchPlayer> MatchPlayers { get; set; } = new();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try 
+        if (!firstRender || _loaded) return;
+        _loaded = true;
+
+        try
         {
-            // Load all the admin data from the API endpoint
-            var response = await Http.GetFromJsonAsync<AdminDataResponse>("http://localhost:5045/api/admin/all-data");
+            var client = await AuthService.GetAuthenticatedClientAsync();
+            var response = await client
+                .GetFromJsonAsync<AdminDataResponse>("api/admin/all-data");
+
             if (response != null)
             {
                 Users = response.Users;
@@ -193,12 +199,15 @@
             }
         }
         catch (HttpRequestException ex)
+            when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            errorMessage = $"Could not connect to the API. Is it running? Details: {ex.Message}";
+            errorMessage = "Unauthorized. Please log in again.";
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred while fetching data: {ex.Message}";
+            errorMessage = $"Could not load data: {ex.Message}";
         }
+
+        StateHasChanged();
     }
 }

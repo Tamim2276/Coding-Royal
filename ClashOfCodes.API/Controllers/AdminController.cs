@@ -1,4 +1,5 @@
 using ClashOfCodes.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,8 @@ namespace ClashOfCodes.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+// [Authorize(Roles = "Admin")] // Uncomment this line if you have role-based authorization set up and want to restrict access to admins only
+[Authorize] // This will require the user to be authenticated, but not necessarily in an "Admin" role. Adjust as needed.
 public class AdminController : ControllerBase
 {
     private readonly AppDbContext _context;

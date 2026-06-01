@@ -1,16 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @* // This file defines the routing for the application. It uses the Router component to map URLs to components. *@
-<CascadingAuthenticationState> @*// This component provides the authentication state to all components in the app. It is
-    required for using the AuthorizeView component and for checking the user's authentication state in any component. *@
+<CascadingAuthenticationState>
     <Router AppAssembly="typeof(Program).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
             <FocusOnNavigate RouteData="routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <PageTitle>Not Found</PageTitle>
+            <PageTitle>Not found</PageTitle>
             <LayoutView Layout="typeof(Layout.MainLayout)">
-                <h1>Sorry, there's nothing at this address.</h1>
+                <p role="alert">Sorry, there's nothing at this address.</p>
             </LayoutView>
         </NotFound>
     </Router>

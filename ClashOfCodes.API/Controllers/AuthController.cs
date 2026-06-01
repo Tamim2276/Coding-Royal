@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ClashOfCodes.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -25,6 +26,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         // create a User object
         var user = new User
         {
@@ -48,6 +51,8 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         // find the user by username
         var user = await _userManager.FindByNameAsync(model.Username);
 
@@ -79,4 +84,28 @@ public class AuthController : ControllerBase
         return Unauthorized(new { message = "Invalid username or password" });
     }
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var username = User.Identity?.Name;
+
+        if (string.IsNullOrEmpty(username))
+        {
+            return Unauthorized(new { message = "User identity not found in token" });
+        }
+
+        var user = await _userManager.FindByNameAsync(username);
+
+        if (user == null) return NotFound();
+
+        var response = Ok(new
+        {
+            user.UserName,
+            user.Email,
+            Message = "This is a protected endpoint. You are authenticated and can see this message!"
+
+        });
+        return response; // Return the user's profile information along with a message indicating that this is a protected endpoint. The client can use this information to display the user's profile or confirm that they are authenticated.
+    }
 }

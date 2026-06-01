@@ -1,5 +1,4 @@
 @page "/login"
-@rendermode InteractiveServer
 @using ClashOfCodes.Services
 @using ClashOfCodes.Shared.Models
 @inject AuthService AuthService
@@ -12,18 +11,18 @@
 
 <h3>Login</h3>
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+<EditForm Model="LoginFormModel" OnValidSubmit="HandleLogin" FormName="login-form">
     <DataAnnotationsValidator />
 
     <div class="mb-3">
         <label for="username" class="form-label">Username:</label>
-        <InputText id="username" @bind-Value="loginModel.Username" class="form-control" type="text"
+        <InputText id="username" @bind-Value="LoginFormModel.Username" class="form-control" type="text"
                    placeholder="Enter username" />
     </div>
 
     <div class="mb-3">
         <label for="password" class="form-label">Password:</label>
-        <InputText id="password" @bind-Value="loginModel.Password" class="form-control" type="password"
+        <InputText id="password" @bind-Value="LoginFormModel.Password" class="form-control" type="password"
                    placeholder="Enter password" aria-describedby="passwordHelpBlock" />
         <div id="passwordHelpBlock" class="form-text">
             Your password must be 6 characters long.
@@ -33,22 +32,22 @@
     <button type="submit" class="btn btn-primary">Login</button>
 </EditForm>
 
+@* Login.razor — full corrected @code block *@
 @code {
-    private LoginModel loginModel = new LoginModel();
+    [SupplyParameterFromForm(FormName = "login-form")]
+    private LoginModel? loginModel { get; set; }
+
+    // This ensures the model is never null when the form renders
+    private LoginModel LoginFormModel => loginModel ??= new LoginModel();
+
     private string? ErrorMessage;
 
     private async Task HandleLogin()
     {
-        // send data to AuthService to login the user
-        var result = await AuthService.LoginAsync(loginModel);
-
+        var result = await AuthService.LoginAsync(LoginFormModel);
         if (result == "Login Successful")
-        {
             NavigationManager.NavigateTo("/");
-        }
         else
-        {
             ErrorMessage = result;
-        }
     }
 }

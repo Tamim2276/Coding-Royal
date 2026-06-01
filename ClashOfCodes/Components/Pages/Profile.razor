@@ -1,6 +1,59 @@
 @page "/profile"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ClashOfCodes.Services.AuthService AuthService
 
-<PageTitle>Player Profile</PageTitle>
+<h3>My Profile</h3>
 
-<h1>Profile</h1>
-<p>Your stats and spell will go here</p>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+@if (profileData == null && string.IsNullOrEmpty(errorMessage))
+{
+    <p><em>Loading secure data...</em></p>
+}
+else if (profileData != null)
+{
+    <div class="card p-4">
+        <h4>Welcome back, @profileData.UserName!</h4>
+        <p><strong>Email:</strong> @profileData.Email</p>
+        <div class="alert alert-success mt-3">@profileData.Message</div>
+    </div>
+}
+
+@code {
+    private ProfileResponse? profileData;
+    private string? errorMessage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            // GetAuthenticatedClientAsync reads localStorage AFTER the browser
+            // has connected — this is why we use OnAfterRenderAsync here
+            var client = await AuthService.GetAuthenticatedClientAsync();
+            profileData = await client.GetFromJsonAsync<ProfileResponse>("api/auth/me");
+        }
+        catch (HttpRequestException ex)
+            when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            errorMessage = "Session expired. Please log in again.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to fetch profile: " + ex.Message;
+        }
+
+        StateHasChanged();
+    }
+
+    private class ProfileResponse
+    {
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
+        public string? Message { get; set; }
+    }
+}

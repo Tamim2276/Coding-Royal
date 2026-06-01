@@ -10,13 +10,29 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddBlazoredLocalStorage();
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorizationCore(); //authorization services for Blazor WebAssembly
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();// Register the CustomAuthStateProvider as the implementation for AuthenticationStateProvider
+// without you having to inject it manually in every page
+builder.Services.AddCascadingAuthenticationState();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 // Add services to the container.
-builder.Services.AddScoped(sp => new HttpClient());
+// builder.Services.AddTransient<JwtAuthHandler>();
+
+// Configure HttpClient to use the JwtAuthHandler for adding JWT tokens to outgoing requests
+builder.Services.AddHttpClient("ClashOfCodesAPI", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5045/");
+});
+// .AddHttpMessageHandler<JwtAuthHandler>();
 
 // Add services to the container.
-builder.Services.AddScoped<ClashOfCodes.Services.AuthService>();
+builder.Services.AddScoped<AuthService>();
 
+
+// Add services to the container.
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ClashOfCodesAPI"));// Register the CustomAuthStateProvider as the implementation for AuthenticationStateProvider
 // Add services to the container.
 builder.Services.AddAuthorizationCore();
 

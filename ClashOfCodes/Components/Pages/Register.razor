@@ -1,5 +1,4 @@
 @page "/register"
-@rendermode InteractiveServer
 @using ClashOfCodes.Services
 @using ClashOfCodes.Shared.Models
 @inject AuthService AuthService
@@ -12,24 +11,24 @@
 
 <h3>Register</h3>
 
-<EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+<EditForm Model="RegisterFormModel" OnValidSubmit="HandleRegister" FormName="register-form">
     <DataAnnotationsValidator />
 
     <div class="mb-3">
         <label for="username" class="form-label">Username:</label>
-        <InputText id="username" @bind-Value="registerModel.Username" class="form-control" type="text"
+        <InputText id="username" @bind-Value="RegisterFormModel.Username" class="form-control" type="text"
                    placeholder="Enter username" />
     </div>
 
     <div class="mb-3">
         <label for="email" class="form-label">Email:</label>
-        <InputText id="email" @bind-Value="registerModel.Email" class="form-control" type="email"
+        <InputText id="email" @bind-Value="RegisterFormModel.Email" class="form-control" type="email"
                    placeholder="name@example.com" />
     </div>
 
     <div class="mb-3">
         <label for="password" class="form-label">Password:</label>
-        <InputText id="password" @bind-Value="registerModel.Password" class="form-control" type="password"
+        <InputText id="password" @bind-Value="RegisterFormModel.Password" class="form-control" type="password"
                    placeholder="Enter password" aria-describedby="passwordHelpBlock" />
         <div id="passwordHelpBlock" class="form-text">
             Your password must be 6 characters long.
@@ -40,21 +39,19 @@
 </EditForm>
 
 @code {
-    private RegisterModel registerModel = new RegisterModel();
+    [SupplyParameterFromForm(FormName = "register-form")]
+    private RegisterModel? registerModel { get; set; }
+
+    private RegisterModel RegisterFormModel => registerModel ??= new RegisterModel();
+
     private string? ErrorMessage;
 
     private async Task HandleRegister()
     {
-        // send data to AuthService to register the user
-        var result = await AuthService.RegisterAsync(registerModel);
-
+        var result = await AuthService.RegisterAsync(RegisterFormModel);
         if (result == "Registration Successful")
-        {
             NavigationManager.NavigateTo("/login");
-        }
         else
-        {
             ErrorMessage = result;
-        }
     }
 }
