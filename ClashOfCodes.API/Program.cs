@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using ClashOfCodes.API.Data;
+using ClashOfCodes.API.Services;
 using ClashOfCodes.Shared.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
@@ -54,6 +55,11 @@ builder.Services.AddIdentity<User, Microsoft.AspNetCore.Identity.IdentityRole<in
 // Configure JWT authentication (if needed for API endpoints)
 // 1. Get the settings from appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.AddHttpClient<JudgeService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Judge0:ApiBaseUrl"]!); // Set the base URL for Judge0 API from configuration
+});
 
 // 2. Configure JWT authentication
 builder.Services.AddAuthentication(options =>
