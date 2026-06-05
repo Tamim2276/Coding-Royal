@@ -16,4 +16,7 @@ public class Problem
     // Result: One-to-Many (1 Problem -> Many MCQs).
     // Problem is the "One" side, so it gets a List of the "Many".
     public List<McqQuestion> McqQuestions { get; set; } = new List<McqQuestion>();
+
+    // Store test cases as JSON: [{"Input":"5","ExpectedOutput":"25"}]
+    public string TestCasesJson { get; set; } = "[]";
 }
