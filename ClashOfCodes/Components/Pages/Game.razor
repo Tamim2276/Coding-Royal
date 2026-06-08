@@ -1,5 +1,168 @@
 @page "/game"
+@inject ClashOfCodes.Services.AuthService AuthService
+@inject IJSRuntime JS
 
-<PageTitle>The Arena - Clash of Codes</PageTitle>
-<h1>The Arena</h1>
-<p>This is where the battle will happen!</p>
+<h3>The Arena — Test Problem</h3>
+
+<div class="row">
+    <div class="col-md-5">
+        @* Problem statement *@
+        <div class="card p-3 mb-3">
+            <h5>Square a Number</h5>
+            <p>Given an integer N, return N squared.</p>
+            <p><strong>Example:</strong> Input: <code>5</code> → Output: <code>25</code></p>
+        </div>
+
+        @* Language selector *@
+        <div class="mb-2">
+            <label class="form-label">Language:</label>
+            <select class="form-select" @onchange="OnLanguageChanged">
+                <option value="csharp">C#</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="javascript">JavaScript</option>
+            </select>
+        </div>
+
+        @* Monaco Editor lives here *@
+        <CodeEditor @ref="codeEditor" Language="@selectedLanguage" InitialCode="@GetStarterCode()" />
+
+        <button class="btn btn-success mt-3 w-100" @onclick="SubmitCode" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                <span>Running...</span>
+            }
+            else
+            {
+                <span>▶ Submit Code</span>
+            }
+        </button>
+    </div>
+
+    <div class="col-md-7">
+        @* Results panel *@
+        @if (submitResponse != null)
+        {
+            <div class="card p-3">
+                <h5>Results: @submitResponse.Passed / @submitResponse.Total passed</h5>
+
+                @if (submitResponse.BeBonus > 0)
+                {
+                    <div class="alert alert-info">
+                        ⚡ +@submitResponse.BeBonus BE earned!
+                    </div>
+                }
+
+                @foreach (var result in submitResponse.Results)
+                {
+                    <div class="card mb-2 @(result.Passed ? "border-success" : "border-danger")">
+                        <div class="card-body py-2">
+                            <strong>Test @result.TestCaseNumber:</strong>
+                            @if (result.Passed)
+                            {
+                                <span class="text-success ms-2">✅ Passed</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger ms-2">❌ Failed</span>
+                                @if (!string.IsNullOrEmpty(result.ActualOutput))
+                                {
+                                    <div class="mt-1">
+                                        <small>Got: <code>@result.ActualOutput</code></small>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(result.Error))
+                                {
+                                    <div class="mt-1">
+                                        <small class="text-danger">@result.Error</small>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-2">@errorMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    private CodeEditor codeEditor = default!;
+    private string selectedLanguage = "csharp";
+    private bool isSubmitting = false;
+    private SubmitResponse? submitResponse;
+    private string? errorMessage;
+
+    private async Task SubmitCode()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+        submitResponse = null;
+
+        try
+        {
+            // Get the code from Monaco Editor via JS interop
+            var code = await codeEditor.GetCodeAsync();
+
+            var client = await AuthService.GetAuthenticatedClientAsync();
+
+            submitResponse = await client.PostAsJsonAsync(
+                "api/submit",
+                new { ProblemId = 1, Code = code, Language = selectedLanguage })
+                .ContinueWith(async t =>
+                {
+                    var resp = await t;
+                    resp.EnsureSuccessStatusCode();
+                    return await resp.Content.ReadFromJsonAsync<SubmitResponse>();
+                }).Unwrap();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Submission failed: " + ex.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void OnLanguageChanged(ChangeEventArgs e)
+    {
+        selectedLanguage = e.Value?.ToString() ?? "csharp";
+    }
+
+    private string GetStarterCode() => selectedLanguage switch
+    {
+        "python" => "n = int(input())\nprint(n * n)",
+        "java" => "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(n * n);\n    }\n}",
+        "cpp" => "#include<iostream>\nusing namespace std;\nint main(){\n    int n;\n    cin >> n;\n    cout << n*n;\n}",
+        "javascript" => "const n = parseInt(require('fs').readFileSync('/dev/stdin','utf8'));\nconsole.log(n*n);",
+        _ => "using System;\nclass Solution {\n    static void Main() {\n        int n = int.Parse(Console.ReadLine()!);\n        Console.WriteLine(n * n);\n    }\n}"
+    };
+
+    // Local class to deserialize the API response
+    private class SubmitResponse
+    {
+        public int Passed { get; set; }
+        public int Total { get; set; }
+        public bool AllPassed { get; set; }
+        public int BeBonus { get; set; }
+        public List<TestCaseResultDto> Results { get; set; } = new();
+    }
+
+    private class TestCaseResultDto
+    {
+        public int TestCaseNumber { get; set; }
+        public bool Passed { get; set; }
+        public string ActualOutput { get; set; } = "";
+        public string Error { get; set; } = "";
+        public string StatusDescription { get; set; } = "";
+    }
+}

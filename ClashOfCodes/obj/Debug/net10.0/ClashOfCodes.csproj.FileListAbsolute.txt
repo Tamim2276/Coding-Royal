@@ -28,7 +28,6 @@ C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\scopedcss\Comp
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\scopedcss\Components\Layout\ReconnectModal.razor.rz.scp.css
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\scopedcss\bundle\ClashOfCodes.styles.css
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\scopedcss\projectbundle\ClashOfCodes.bundle.scp.css
-C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\ovypr7kbsc-{0}-khy4lop6wu-khy4lop6wu.gz
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\mn8w9sajq6-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\h64ofh7tfl-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\jypqdvlg82-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -89,3 +88,5 @@ C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\refint\ClashOf
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ClashOfCodes.pdb
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ClashOfCodes.genruntimeconfig.cache
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ref\ClashOfCodes.dll
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\a50astfqbz-{0}-sumxw18egx-sumxw18egx.gz
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\ovypr7kbsc-{0}-dfp4ums51x-dfp4ums51x.gz

@@ -17,6 +17,7 @@
     route. For now, we will just render it with prerendering disabled, since we don't have any dynamic head content yet.
     We will enable prerendering later when we have dynamic head content to render. *@
     <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" />
+
 </head>
 
 <body>
@@ -27,6 +28,14 @@
     we have dynamic nav items to render. *@
     <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
     <ReconnectModal />
+
+    @* <!-- Monaco Editor loader --> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+    @* Your custom JS that lets Blazor talk to Monaco *@
+    <script src="js/monacoInterop.js"></script>
+
+    @* Blazor runtime — must come LAST *@
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

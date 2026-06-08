@@ -1,0 +1,30 @@
+@inject IJSRuntime JS
+
+@* The editor renders inside this div — Monaco fills it completely *@
+<div id="monaco-editor-container" style="height: 400px; width: 100%; border: 1px solid #444;">
+
+</div>
+
+@code {
+    // Language can be changed by the parent component
+    [Parameter] public string Language { get; set; } = "csharp";
+    [Parameter] public string InitialCode { get; set; } = "// Write your code here\n";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            // Initialize Monaco Editor inside the div above
+            await JS.InvokeVoidAsync("monacoInterop.initEditor",
+                                    "monaco-editor-container",
+                                    Language,
+                                    InitialCode);
+        }
+    }
+
+    // Called by the parent page to get the current code
+    public async Task<string> GetCodeAsync()
+    {
+        return await JS.InvokeAsync<string>("monacoInterop.getCode");
+    }
+}

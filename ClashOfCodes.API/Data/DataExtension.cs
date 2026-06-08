@@ -36,14 +36,59 @@ public static class DataExtension
                     );
                     appDb.SaveChanges();
                 }
+
                 if (!appDb.Problems.Any())
                 {
                     appDb.Problems.AddRange(
-                        new Problem { Title = "Two Sum", Description = "Find two numbers that add up to a target." },
-                        new Problem { Title = "Reverse String", Description = "Reverse a given string." }
+                        // Easy — Difficulty 1
+                        new Problem
+                        {
+                            Title = "Square a Number",
+                            Description = "Given an integer N, print N squared.\n\nExample:\nInput: 5\nOutput: 25",
+                            Difficulty = 1,
+                            Topic = "Math",
+                            TestCasesJson = """
+                            [
+                                {"Input":"5","ExpectedOutput":"25"},
+                                {"Input":"3","ExpectedOutput":"9"},
+                                {"Input":"10","ExpectedOutput":"100"}
+                            ]
+                            """
+                        },
+                        // Medium — Difficulty 2
+                        new Problem
+                        {
+                            Title = "Sum of Array",
+                            Description = "Given N integers on separate lines, print their sum.\n\nExample:\nInput:\n3\n1\n2\n3\nOutput: 6",
+                            Difficulty = 2,
+                            Topic = "Arrays",
+                            TestCasesJson = """
+                            [
+                                {"Input":"3\n1\n2\n3","ExpectedOutput":"6"},
+                                {"Input":"4\n10\n20\n30\n40","ExpectedOutput":"100"},
+                                {"Input":"2\n5\n5","ExpectedOutput":"10"}
+                            ]
+                            """
+                        },
+                        // Hard — Difficulty 3
+                        new Problem
+                        {
+                            Title = "Reverse a String",
+                            Description = "Given a string, print it reversed.\n\nExample:\nInput: hello\nOutput: olleh",
+                            Difficulty = 3,
+                            Topic = "Strings",
+                            TestCasesJson = """
+                            [
+                                {"Input":"hello","ExpectedOutput":"olleh"},
+                                {"Input":"world","ExpectedOutput":"dlrow"},
+                                {"Input":"abcd","ExpectedOutput":"dcba"}
+                            ]
+                            """
+                        }
                     );
                     appDb.SaveChanges();
                 }
+
                 if (!appDb.Matches.Any())
                 {
                     appDb.Matches.AddRange(
