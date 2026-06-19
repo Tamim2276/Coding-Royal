@@ -4,14 +4,24 @@
 
 <h3>The Arena — Test Problem</h3>
 
-<div class="row">
-    <div class="col-md-5">
-        @* Problem statement *@
+<div class="row" style="height: calc(100vh - 80px);">
+
+    @* ── LEFT: Problem statement only ── *@
+    <div class="col-md-5" style="overflow-y: auto; border-right: 1px solid #ddd;">
+
         <div class="card p-3 mb-3">
             <h5>Square a Number</h5>
             <p>Given an integer N, return N squared.</p>
-            <p><strong>Example:</strong> Input: <code>5</code> → Output: <code>25</code></p>
+            <p>
+                <strong>Example:</strong>
+                Input: <code>5</code> → Output: <code>25</code>
+            </p>
         </div>
+
+    </div>
+
+    @* ── RIGHT: Language selector + Editor + Submit + Results ── *@
+    <div class="col-md-7 d-flex flex-column" style="height: 100%;">
 
         @* Language selector *@
         <div class="mb-2">
@@ -25,10 +35,14 @@
             </select>
         </div>
 
-        @* Monaco Editor lives here *@
-        <CodeEditor @ref="codeEditor" Language="@selectedLanguage" InitialCode="@GetStarterCode()" />
+        @* Monaco Editor *@
+        <div style="height: 400px;">
+            <CodeEditor @ref="codeEditor" Language="@selectedLanguage" InitialCode="@GetStarterCode()"
+                        GetStarterCode="GetStarterCode" />
+        </div>
 
-        <button class="btn btn-success mt-3 w-100" @onclick="SubmitCode" disabled="@isSubmitting">
+        @* Submit button *@
+        <button class="btn btn-success mt-2 w-100" @onclick="SubmitCode" disabled="@isSubmitting">
             @if (isSubmitting)
             {
                 <span class="spinner-border spinner-border-sm me-2"></span>
@@ -39,13 +53,11 @@
                 <span>▶ Submit Code</span>
             }
         </button>
-    </div>
 
-    <div class="col-md-7">
-        @* Results panel *@
+        @* Results *@
         @if (submitResponse != null)
         {
-            <div class="card p-3">
+            <div class="card p-3 mt-2">
                 <h5>Results: @submitResponse.Passed / @submitResponse.Total passed</h5>
 
                 @if (submitResponse.BeBonus > 0)
@@ -57,7 +69,8 @@
 
                 @foreach (var result in submitResponse.Results)
                 {
-                    <div class="card mb-2 @(result.Passed ? "border-success" : "border-danger")">
+                    <div class="card mb-2
+                        @(result.Passed ? "border-success" : "border-danger")">
                         <div class="card-body py-2">
                             <strong>Test @result.TestCaseNumber:</strong>
                             @if (result.Passed)
@@ -70,13 +83,17 @@
                                 @if (!string.IsNullOrEmpty(result.ActualOutput))
                                 {
                                     <div class="mt-1">
-                                        <small>Got: <code>@result.ActualOutput</code></small>
+                                        <small>
+                                            Got: <code>@result.ActualOutput</code>
+                                        </small>
                                     </div>
                                 }
                                 @if (!string.IsNullOrEmpty(result.Error))
                                 {
                                     <div class="mt-1">
-                                        <small class="text-danger">@result.Error</small>
+                                        <small class="text-danger">
+                                            @result.Error
+                                        </small>
                                     </div>
                                 }
                             }
@@ -90,6 +107,7 @@
         {
             <div class="alert alert-danger mt-2">@errorMessage</div>
         }
+
     </div>
 </div>
 
@@ -108,9 +126,7 @@
 
         try
         {
-            // Get the code from Monaco Editor via JS interop
             var code = await codeEditor.GetCodeAsync();
-
             var client = await AuthService.GetAuthenticatedClientAsync();
 
             submitResponse = await client.PostAsJsonAsync(
@@ -120,7 +136,8 @@
                 {
                     var resp = await t;
                     resp.EnsureSuccessStatusCode();
-                    return await resp.Content.ReadFromJsonAsync<SubmitResponse>();
+                    return await resp.Content
+                        .ReadFromJsonAsync<SubmitResponse>();
                 }).Unwrap();
         }
         catch (Exception ex)
@@ -134,9 +151,7 @@
     }
 
     private void OnLanguageChanged(ChangeEventArgs e)
-    {
-        selectedLanguage = e.Value?.ToString() ?? "csharp";
-    }
+        => selectedLanguage = e.Value?.ToString() ?? "csharp";
 
     private string GetStarterCode() => selectedLanguage switch
     {
@@ -147,7 +162,6 @@
         _ => "using System;\nclass Solution {\n    static void Main() {\n        int n = int.Parse(Console.ReadLine()!);\n        Console.WriteLine(n * n);\n    }\n}"
     };
 
-    // Local class to deserialize the API response
     private class SubmitResponse
     {
         public int Passed { get; set; }

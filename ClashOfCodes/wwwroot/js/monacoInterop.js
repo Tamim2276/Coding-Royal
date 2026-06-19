@@ -40,4 +40,11 @@ window.monacoInterop = {
       monaco.editor.setModelLanguage(window._monacoEditor.getModel(), language);
     }
   },
+
+  // Called from Blazor to replace the code content when language changes
+  setValue: function (code) {
+    if (window._monacoEditor) {
+      window._monacoEditor.setValue(code);
+    }
+  },
 };

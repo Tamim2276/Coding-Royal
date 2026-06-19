@@ -88,5 +88,5 @@ C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\refint\ClashOf
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ClashOfCodes.pdb
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ClashOfCodes.genruntimeconfig.cache
 C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\ref\ClashOfCodes.dll
-C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\a50astfqbz-{0}-sumxw18egx-sumxw18egx.gz
-C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\ovypr7kbsc-{0}-dfp4ums51x-dfp4ums51x.gz
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\ovypr7kbsc-{0}-18e6gl8640-18e6gl8640.gz
+C:\Users\tam1m\Desktop\coding game\ClashOfCodes\obj\Debug\net10.0\compressed\a50astfqbz-{0}-cg7l4eidc4-cg7l4eidc4.gz

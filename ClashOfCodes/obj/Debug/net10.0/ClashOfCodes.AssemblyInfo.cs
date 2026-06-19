@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClashOfCodes")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a64b9c2782aed8d53191b740621f85e9aec4c89")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e8a091507df201e738a80f9ab6e9504a19b55a7c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClashOfCodes")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClashOfCodes")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

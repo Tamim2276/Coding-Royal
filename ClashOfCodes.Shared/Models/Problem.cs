@@ -1,22 +1,20 @@
+using System.Text.Json.Serialization;
+
 namespace ClashOfCodes.Shared.Models;
 
 public class Problem
 {
-    public int Id { get; set; }     //primary key
+    public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public int Difficulty { get; set; }
+    public int Difficulty { get; set; }      // 1=Easy, 2=Medium, 3=Hard
     public string Topic { get; set; } = string.Empty;
-    public string TestCaseJson { get; set; } = "[]";
-    public string HiddenTestCaseJson { get; set; } = "[]";
-
-    // --- RELATIONSHIP: Problem & McqQuestion ---
-    // Can one Problem have many MCQ Questions? Yes.
-    // Can one MCQ Question belong to many Problems? No.
-    // Result: One-to-Many (1 Problem -> Many MCQs).
-    // Problem is the "One" side, so it gets a List of the "Many".
-    public List<McqQuestion> McqQuestions { get; set; } = new List<McqQuestion>();
-
-    // Store test cases as JSON: [{"Input":"5","ExpectedOutput":"25"}]
     public string TestCasesJson { get; set; } = "[]";
+    public string HiddenTestCasesJson { get; set; } = "[]";
+
+    // JsonIgnore prevents infinite loop when API serializes this to JSON.
+    // The Blazor client doesn't need the MCQ questions inside the problem —
+    // it fetches them separately via GET /api/mcq/{problemId}
+    [JsonIgnore]
+    public List<McqQuestion> McqQuestions { get; set; } = new();
 }
