@@ -1,115 +1,116 @@
 namespace ClashOfCodes.API.Services;
 
+// Piston API — free, no account, no API key, no card needed
+// Public endpoint: https://emkc.org/api/v2/piston
+// Docs: https://github.com/engineer-man/piston
 public class JudgeService
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
-    public JudgeService(HttpClient httpClient, IConfiguration configuration)
+
+    public JudgeService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _configuration = configuration;
     }
 
-    /// A dictionary mapping programming language names to their corresponding IDs used by the Judge0 API.
-    public static readonly Dictionary<string, int> LanguageIds = new Dictionary<string, int>()
-    {
-        {"csharp",51},
-        {"python",71},
-        {"java",62},
-        {"javascript",63},
-        {"cpp",54},
-    };
+    /// A dictionary mapping our language names to Piston's language name and version.
+    /// Piston uses language name + version to identify the runtime.
+    private static readonly Dictionary<string, (string language, string version)>
+        LanguageMap = new()
+        {
+            { "csharp",     ("csharp",     "6.12.0")  },
+            { "python",     ("python",     "3.10.0")  },
+            { "java",       ("java",       "15.0.2")  },
+            { "cpp",        ("c++",        "10.2.0")  },
+            { "javascript", ("javascript", "18.15.0") }
+        };
 
-
-    /// Submits code to the Judge0 API for execution and returns the result.
-    public async Task<TestCaseResult> RunTestCaseAsync(string code, string language, string input, string expectedOutput)
+    /// Submits code to the Piston API for execution and returns the result.
+    /// Unlike Judge0, Piston is synchronous — it runs the code and returns the
+    /// result immediately in a single request, so no polling is needed.
+    public async Task<TestCaseResult> RunTestCaseAsync(
+        string code, string language, string input, string expectedOutput)
     {
-        if (!LanguageIds.TryGetValue(language.ToLower(), out int languageId))
+        // Check if the language is supported
+        if (!LanguageMap.TryGetValue(language.ToLower(), out var lang))
         {
             return new TestCaseResult
             {
                 Passed = false,
-                ActualOutput = "",
                 Error = $"Unsupported language: {language}"
             };
         }
-        var submission = new
+
+        // Build the Piston request body
+        // files: the source code files to run (we only need one file)
+        // stdin: the input to pass to the program (same as test case input)
+        var request = new
         {
-            source_code = code,
-            language_id = languageId,
-            stdin = input,
-            expected_output = expectedOutput
+            language = lang.language,
+            version = lang.version,
+            files = new[] { new { content = code } },
+            stdin = input
         };
 
-        var submitRequest = new HttpRequestMessage(HttpMethod.Post, "/submissions?base64_encoded=false&wait=false"); // Adjust the endpoint as needed
+        // Send the request to Piston — no API key headers needed
+        var response = await _httpClient.PostAsJsonAsync("execute", request);
 
-        submitRequest.Headers.Add("X-RapidAPI-Key", _configuration["Judge0:ApiKey"]); // Add the API key header
-        submitRequest.Headers.Add("X-RapidAPI-Host", _configuration["Judge0:ApiHost"]);// Add the API host header
-
-        var submitResponse = await _httpClient.SendAsync(submitRequest); // Send the submission request to Judge0
-
-        if (!submitResponse.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
             return new TestCaseResult
             {
                 Passed = false,
-                Error = "Failed to submit code to Judge0"
+                Error = $"Piston API returned an error: {response.StatusCode}"
             };
         }
 
-        var submitResult = await submitResponse.Content.ReadFromJsonAsync<SubmissionToken>();
+        // Deserialize the Piston response
+        var result = await response.Content
+            .ReadFromJsonAsync<PistonResponse>();
 
-        if (submitResult?.Token == null)
+        if (result == null)
         {
             return new TestCaseResult
             {
                 Passed = false,
-                Error = "No token received"
+                Error = "No response received from Piston"
             };
         }
 
-        return await PollResultAsync(submitResult.Token);
-    }
-
-    /// Polls the Judge0 API for the result of a code submission using the provided token.
-    private async Task<TestCaseResult> PollResultAsync(string token)
-    {
-        for (int attempt = 0; attempt < 10; attempt++)
+        // Check for compile errors — if the code failed to compile,
+        // Stderr on the Compile output will contain the error message
+        if (!string.IsNullOrEmpty(result.Compile?.Stderr))
         {
-            await Task.Delay(1000); // Wait for 10 seconds before polling
-
-            var pollRequest = new HttpRequestMessage(HttpMethod.Get, $"/submissions/{token}?base64_encoded=false"); // Adjust the endpoint as needed
-
-            pollRequest.Headers.Add("X-RapidAPI-Key", _configuration["Judge0:ApiKey"]); // Add the API key header
-            pollRequest.Headers.Add("X-RapidAPI-Host", _configuration["Judge0:ApiHost"]);// Add the API host header
-
-            var pollResponse = await _httpClient.SendAsync(pollRequest); // Send the polling request to Judge0
-
-            var pollResult = await pollResponse.Content.ReadFromJsonAsync<Judge0Result>(); // Deserialize the response into a Judge0Result object
-
-            if (pollResult == null) continue;
-
-            // Check the status of the result and return the appropriate TestCaseResult
-            // Status 1 = In Queue, 2 = Processing — keep waiting
-            if (pollResult.Status?.Id <= 2) continue;
-            // Status 3 = Accepted (Passed), other status codes indicate failure
             return new TestCaseResult
             {
-                Passed = pollResult.Status?.Id == 3,
-                ActualOutput = pollResult.Stdout?.Trim() ?? "",
-                Error = pollResult.Stderr ?? pollResult.CompileOutput ?? "",
-                StatusDescription = pollResult.Status?.Description ?? ""
+                Passed = false,
+                Error = "Compile error: " + result.Compile.Stderr
             };
         }
+
+        // Get the actual program output and trim whitespace for comparison
+        // Piston puts the program's printed output in Run.Stdout
+        var actualOutput = result.Run?.Stdout?.Trim() ?? "";
+        var expected = expectedOutput.Trim();
+
+        // Compare actual output with expected output to determine pass/fail
+        var passed = actualOutput == expected;
+
         return new TestCaseResult
         {
-            Passed = false,
-            Error = "Timed out waiting for Judge0 result"
+            Passed = passed,
+            ActualOutput = actualOutput,
+            // If the run failed, Stderr contains the runtime error message
+            Error = passed ? "" : (result.Run?.Stderr ?? ""),
+            StatusDescription = passed ? "Accepted" : "Wrong Answer"
         };
     }
 }
 
-/// Represents the result of a test case execution, including whether it passed, the actual output, any errors, and a status description.
+/// Represents the result of a single test case execution.
+/// Passed: whether the output matched the expected output.
+/// ActualOutput: what the program actually printed.
+/// Error: compile error or runtime error message if it failed.
+/// StatusDescription: human-readable verdict (Accepted / Wrong Answer).
 public class TestCaseResult
 {
     public bool Passed { get; set; }
@@ -117,22 +118,22 @@ public class TestCaseResult
     public string Error { get; set; } = "";
     public string StatusDescription { get; set; } = "";
 }
-// Represents the response from the Judge0 API for a code submission, including standard output, standard error, compile output, and status information.
-internal class Judge0Result
+
+/// Represents the full response from the Piston API.
+/// Compile: present only for compiled languages (C#, Java, C++).
+///          Contains compile errors if compilation failed.
+/// Run: always present. Contains the program's stdout and stderr.
+file class PistonResponse
+{
+    public PistonOutput? Compile { get; set; }
+    public PistonOutput? Run { get; set; }
+}
+
+/// Represents one stage of the Piston execution (compile or run).
+/// Stdout: what the program printed to standard output.
+/// Stderr: any error output (compile errors or runtime exceptions).
+file class PistonOutput
 {
     public string? Stdout { get; set; }
     public string? Stderr { get; set; }
-    public string? CompileOutput { get; set; }
-    public Judge0Status? Status { get; set; }
-}
-// Represents the status of a code submission in the Judge0 API, including an ID and a description.
-public class Judge0Status
-{
-    public int Id { get; set; }
-    public string? Description { get; set; }
-}
-// Represents the response from the Judge0 API when a code submission is made, containing a token that can be used to poll for results.
-internal class SubmissionToken
-{
-    public string? Token { get; set; }
 }

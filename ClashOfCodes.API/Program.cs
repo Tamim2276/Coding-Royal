@@ -58,7 +58,7 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 builder.Services.AddHttpClient<JudgeService>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Judge0:ApiBaseUrl"]!); // Set the base URL for Judge0 API from configuration
+    client.BaseAddress = new Uri("https://emkc.org/api/v2/piston");
 });
 
 // 2. Configure JWT authentication

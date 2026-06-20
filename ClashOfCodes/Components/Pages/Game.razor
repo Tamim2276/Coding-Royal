@@ -157,9 +157,10 @@
     {
         "python" => "n = int(input())\nprint(n * n)",
         "java" => "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(n * n);\n    }\n}",
-        "cpp" => "#include<iostream>\nusing namespace std;\nint main(){\n    int n;\n    cin >> n;\n    cout << n*n;\n}",
-        "javascript" => "const n = parseInt(require('fs').readFileSync('/dev/stdin','utf8'));\nconsole.log(n*n);",
-        _ => "using System;\nclass Solution {\n    static void Main() {\n        int n = int.Parse(Console.ReadLine()!);\n        Console.WriteLine(n * n);\n    }\n}"
+        "cpp" => "#include<iostream>\nusing namespace std;\nint main(){\n    int n;\n    cin >> n;\n    cout << n*n;\n    return 0;\n}",
+        "javascript" => "const lines = require('fs').readFileSync('/dev/stdin','utf8').trim();\nconsole.log(parseInt(lines) ** 2);",
+        // Piston C# uses top-level statements
+        _ => "using System;\nint n = int.Parse(Console.ReadLine()!);\nConsole.WriteLine(n * n);"
     };
 
     private class SubmitResponse
